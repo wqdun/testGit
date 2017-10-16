@@ -1,50 +1,40 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include <map>
-#include <cmath>
-#include <vector>
+
+namespace ClassFoo {
 
 using namespace std;
-double getDaySecond(const double rosTime, const double pktTime) {
-  int rosHour = (int)rosTime / 3600 % 24;
-  const int rosMinute = (int)rosTime / 60 % 60;
-  const int pktMinute = (int)pktTime / 60;
-  const int errMinute = rosMinute - pktMinute;
-  cout << rosHour << ":" << rosMinute << ":" << fmod(rosTime, 60) << endl;
-  cout << "00:" << pktMinute << endl;
-  cout << errMinute<< endl;
 
-  if(errMinute > 10) {
-    // cout << "errMinute > 10" << endl;
-    ++rosHour;
-  }
-  else
-  if(errMinute < -10) {
-    // cout << "errMinute < -10" << endl;
-    --rosHour;
-  }
-  // else {
-  //   // do nothing when errMinute in [-10, 10]
-  // }
+void PrintIntIntMap(std::map<int,int>& m) {
+    std::map<int,int>::iterator it;
+    for ( it = m.begin(); it != m.end(); it++ )
+        std::cout << "(" << it->first << "," << it->second << ") ";
+    std::cout << std::endl;
+}
+void MapEndExample1() {
+    std::map<int,int> foo1;
 
-  // in case: -1 || 24
-  rosHour = (rosHour + 24) % 24;
+    foo1[3] = 96;
+    foo1[24] = 14;
+    foo1[35] = 37;
+    // cout << foo1.size() << endl;
+    cout << foo1.begin()->first << endl;
+    // cout << foo1.end()->first << endl;
+    cout << (int)(foo1.rbegin() == foo1.rend()) << endl;
+    cout << foo1.rbegin()->first << endl;
+    // cout << foo1.rend()->first << endl;
+    auto beginIter = foo1.lower_bound(0);
+    cout << (int)(beginIter == foo1.cend()) << endl;
+    cout << (int)(foo1.upper_bound(35) == foo1.cend()) << endl;
 
-  return pktTime + 3600 * rosHour;
+    cout << foo1.upper_bound(.9)->second << endl;
+    // PrintIntIntMap(foo1);
 }
 
 
-int main() {
-    double dayS = getDaySecond(1508111941, 12);
-
-    double dayHour = (int)dayS / 3600;
-    double dayMinute = (int)dayS / 60 % 60;
-    double daySecond = fmod(dayS, 60);
-    cout << dayHour << ":" << dayMinute << ":" << daySecond << endl;
-    cout << fixed << dayS << endl;
-
-
-
+}
+int main ()
+{
+    ClassFoo::MapEndExample1();
+    return 0;
 }
