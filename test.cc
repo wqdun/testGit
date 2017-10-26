@@ -1,7 +1,11 @@
 #include <iostream>
 #include <fstream>
+#include <string>
+
 #include <string.h>
+#include <string>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -24,11 +28,11 @@ void WriteBINFile_C()
     if(!fp) {
         cout << "open failed with errno:" << errno << endl;
     }
-    
+
     point_t p1 = {1, 2, 3, 4, 5};
     point_t p2 = {2, 3, 4, 5, 6};
     point_t ps[100] = {p1, p2};
-    
+
     string str = "-7.231225:1.987737:-2.009471:13.000000:22144.888645\n";
     const char *cstr = str.c_str();
     int len = strlen(cstr);
@@ -88,13 +92,42 @@ void ReadBINFile_C()
 // }
 
 
-int main()
+int main(int argc, char** argv)
 {
     unsigned long int start, end;
 
-    sleep(5);
+    // sleep(5);
     cout << "1000 ms" << endl;
 
+    string mRecordPath(argv[1]);
+    cout << mRecordPath;
+    char fileName[50] = "hello";
+    // cout << strlen(fileName) << endl;
+    // strncat(mRecordPath, fileName, strlen(fileName));
+    // cout << mRecordPath << endl;
+    // string tmp(fileName);
+    // cout << tmp.size();
+    // mRecordPath += tmp;
+    // cout << mRecordPath.c_str();
+
+
+    string b = "hello";
+    string c = "world";
+    string a(b + c);
+    cout << a << endl;
+
+    string ss="9876543210";
+    string &newSs = ss.erase(7, 1);
+    cout << ss << endl;
+    cout << newSs << endl;
+
+
+    double maxvalue = 12.124542132;
+    cout.setf(ios::fixed);
+    cout.setf(ios::showpoint);
+    cout.precision(3);
+    cout << maxvalue << endl;
+    printf( "%.3lf\n", maxvalue );
     // start = GetTickCount();
     // WriteBINFile_C();
     // // end = GetTickCount();
