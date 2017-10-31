@@ -106,7 +106,7 @@ if __name__ == "__main__":
     path = sys.argv[1]
 
     # 1 读取xml文件
-    tree = read_xml("./launch.xml")
+    tree = read_xml("../src/launch/ntd_sensors.launch")
 
     # 2 属性修改
     # 2.1 找到父节点
