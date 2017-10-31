@@ -1,142 +1,131 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include <string.h>
-#include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
-
-#include <errno.h>
-
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <cmath>
+#include <iterator>
 using namespace std;
 
-typedef struct point {
-    double x;
-    double y;
-    double z;
-    double intensity;
-    double daySecond;
-} point_t;
+#define SIZE 0
 
+typedef struct student_type {
+    char name[20];
+    int num;
+    int age;
+    char addr[15];
+} stud_t;
 
-void WriteBINFile_C()
-{
-    FILE* fp = fopen("c.bin","wb");
-    if(!fp) {
-        cout << "open failed with errno:" << errno << endl;
+stud_t stud[SIZE];
+
+void save(const stud_t &in_stu) {
+    FILE * fp;
+    int i;
+    if((fp = fopen("stu_list.txt", "wb")) == NULL) {
+        printf("cannot open file\n");
+        exit(1);
     }
-
-    point_t p1 = {1, 2, 3, 4, 5};
-    point_t p2 = {2, 3, 4, 5, 6};
-    point_t ps[100] = {p1, p2};
-
-    string str = "-7.231225:1.987737:-2.009471:13.000000:22144.888645\n";
-    const char *cstr = str.c_str();
-    int len = strlen(cstr);
-    cout << len << endl;
-
-    fwrite(cstr, 1, len, fp);
-    fwrite(cstr, 1, len, fp);
-
+    for (i = 0; i < SIZE; i++) {
+        if(fwrite(&in_stu, sizeof(struct student_type), 1, fp) != 1)
+            printf("file write error.\n");
+    }
     fclose(fp);
 }
 
-void ReadBINFile_C()
-{
-    // FILE* fp = fopen("/home/dun/.ros/19_01_53.lidar","rb");
-    FILE* fp = fopen("c.bin","rb");
-    char str[5500000];
+template <typename T>
+int saveFile(const T &data2write) {
+    static const size_t MAX_PKT_CNT = 10000000;
+    cout << sizeof(T) << endl;
+}
 
-    // for(int i = 0; i < 1000; i++)
-    // {
-    //     for(int j = 0; j < 1000; j++)
-    //     {
-            fread(str, 2, 2, fp);
-    //     }
+
+int main() {
+    printf("sizeof(struct stud) = %ld\n", sizeof(stud_t));
+    printf("Please input the 4 student information,including name,num,age,address\n");
+    int i;
+    for(i = 0; i < SIZE; i++)
+        scanf("%s%d%d%s", stud[i].name, &stud[i].num, &stud[i].age, stud[i].addr);
+
+
+    save(stud[1]);
+    printf("\nThe information of the 4 students is:\n");
+
+    FILE* fp;
+    fp = fopen("stu_list.txt", "rb");
+    fseek(fp, 0, 2);
+    long int pos = ftell(fp);
+    cout << pos << endl;
+    // while() {
+
     // }
-    // str[5500000] = '\0';
-    cout << strlen(str) << endl;
-    cout << str[2] << (int)str[5] << endl;
+
+    for (i = 0; i < SIZE + 1; i++) {
+        fread(&stud[i], sizeof(struct student_type), 1, fp);
+        printf("%-10s %4d %4d %-15s\n", stud[i].name, stud[i].num, stud[i].age, stud[i].addr);
+    }
     fclose(fp);
-}
+
+    // cout << sizeof(double) << sizeof(float) << endl;
+
+    // int a[3] = {5, 7};
+    // // vector<int> a;
+    // // a.clear();
+    // a.push_back(5);
+    // cout << a.size() << endl;
+
+    double f64 = -22345.15412453;
+    float f32 = static_cast<float>(f64);
+    cout << fixed << setprecision(6) << f64 << "\n" << setprecision(6)<< f32 << endl;
+    cout << fabs(f64) << endl;
 
 
-// bool DealFile(string fileName) //随便写个函数说明
-// {
-//     FILE *file;
-// unsigned long int fileSize ,pos;
-// int readLen ;
+    float *pF64 = &f32;
+    saveFile(f64);
+    saveFile(pF64);
+    cout << sizeof(double) << endl;
+    cout << sizeof(*pF64) << endl;
 
-// //MAX_BUFFER_LEN 在头文件里定义，这里能够保证数据不丢失，也不至于内存逸出
-// char *buffer = new char[MAX_BUFFER_LEN];
-// file = fopen(fileName.c_str(),"r+b");
-// if(file == NULL) return false;
-// fseek(file,0,2);
-// fileSize = ftell(file); //取得文件的大小
-// fseek(file,0,0);
-// do{
-// readLen = fread(buffer,sizeof(char),MAX_BUFFER_LEN,file);
-// if(readLen > 0)
-// {
-// pos += readLen;
-// //对读取的文件做处理
-// }
-// }while(pos < fileSize); //循环读取文件
-// delete[] buffer;
-// fclose(file); //释放资源
-// return true;
-
-// }
-
-
-int main(int argc, char** argv)
 {
-    unsigned long int start, end;
+  std::string s;
+  // assign(size_type count, CharT ch)
+  s.assign(4, '=');
+  std::cout << s << '\n'; // "===="
 
-    // sleep(5);
-    cout << "1000 ms" << endl;
+  std::string const c("Exemplary");
+  // assign(basic_string const& str)
+  s.assign(c);
+  std::cout << c << "==" << s <<'\n'; // "Exemplary == Exemplary"
 
-    string mRecordPath(argv[1]);
-    cout << mRecordPath;
-    char fileName[50] = "hello";
-    // cout << strlen(fileName) << endl;
-    // strncat(mRecordPath, fileName, strlen(fileName));
-    // cout << mRecordPath << endl;
-    // string tmp(fileName);
-    // cout << tmp.size();
-    // mRecordPath += tmp;
-    // cout << mRecordPath.c_str();
+  // assign(basic_string const& str, size_type pos, size_type count)
+  s.assign(c, 0, c.length()-1);
+  std::cout << s << '\n'; // "Exemplar";
 
+  // assign(basic_string&& str)
+  s.assign(std::string("C++ by ") + "example");
+  std::cout << s << '\n'; // "C++ by example"
 
-    string b = "hello";
-    string c = "world";
-    string a(b + c);
-    cout << a << endl;
+  // assign(charT const* s, size_type count)
+  s.assign("C-style string", 7);
+  std::cout << s << '\n'; // "C-style"
 
-    string ss="9876543210";
-    string &newSs = ss.erase(7, 1);
-    cout << ss << endl;
-    cout << newSs << endl;
+  // assign(charT const* s)
+  s.assign("C-style\0string");
+  std::cout << s << '\n'; // "C-style"
 
+  char mutable_c_str[] = "C-style string";
+  // assign(InputIt first, InputIt last)
+  s.assign(std::begin(mutable_c_str), std::end(mutable_c_str)-1);
+  std::cout << s << '\n'; // "C-style string"
 
-    double maxvalue = 12.124542132;
-    cout.setf(ios::fixed);
-    cout.setf(ios::showpoint);
-    cout.precision(3);
-    cout << maxvalue << endl;
-    printf( "%.3lf\n", maxvalue );
-    // start = GetTickCount();
-    // WriteBINFile_C();
-    // // end = GetTickCount();
-    // printf("C语言写二进制文件操作运行时间为：%ld ms\n", end - start);
-    // ReadBINFile_C();
-    // DealFile();
-    // size_t tmp = 160000;
-    // cout << endl;
-    // cout << (tmp >> 8) << endl;
-    // cout << tmp / 256 << endl;
+  // assign(std::initializer_list<charT> ilist)
+  s.assign({ 'C', '-', 's', 't', 'y', 'l', 'e' });
+  std::cout << s << '\n'; // "C-style"
 
+  string p;
+  string path("Helo");
+  p.assign(path).append("\\*").append("endl");
+  cout << p << "\n";
+
+}
+    return 0;
 }
