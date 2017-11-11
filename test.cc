@@ -3,90 +3,90 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cerrno>
+#include <iostream>
 using namespace std;
 
-template<typename T>
-T string2num(const string& str) {
-    std::istringstream iss(str);
-    T num;
-    iss >> num;
-    return num;
+string mRecordPath = "/home/dun/";
+
+int saveFile(const char *pTimeStamp) {
+    // about 600 packets/second
+    static const size_t MAX_PKT_CNT = 100;
+    static size_t pktCnt = 0;
+    static char fileName[50];
+    static FILE *pOutFile;
+    // get unix time stamp as file name
+    if(0 == pktCnt) {
+        time_t tt = time(NULL);
+        tm *t= localtime(&tt);
+        (void)sprintf(fileName, "%02d_%02d_%02d.lidar", t->tm_hour, t->tm_min, t->tm_sec);
+
+        const string fileNameStr("fileName");
+        const string recordFile(mRecordPath + fileNameStr);
+
+        if( !(pOutFile = fopen(recordFile.c_str(), "wb")) ) {
+            cout << "Create file:" << fileName << " failed, errno:" << errno;
+        }
+        cout << "Create file:" << fileName << " successfully.\n";
+    }
+
+    static const size_t timeSize = sizeof(*pTimeStamp);
+    if(1 != fwrite(pTimeStamp, timeSize, 1, pOutFile)) {
+      cout << "Write time stamp error.";
+    }
+
+    ++pktCnt;
+    cout << "pktCnt:" << pktCnt << "\n";
+    if(11 == pktCnt) {
+      pktCnt = 0;
+      fclose(pOutFile);
+    }
+    // fclose(pOutFile);
+    return 0;
 }
 
-int main(int args, char **argv) {
-    std::ifstream fin("test2.cpp");
-    if(!fin) {
-        cout << "failed open, check if exist.\n";
-        exit(1);
-    }
-    std::cout << std::boolalpha;
-    // std::cout << "fin.is_open() = " << fin.is_open() << '\n';
-    // std::cout << "fin.good() = " << fin.good() << '\n';
+int saveTxtFile() {
 
-    // char str[10000];
-    // fin >> str;
-    // cout << str << "\n";
+    string strT("/home/dun/fileName");
+    ifstream in;
+    cout << "in.good():" << in.good() << endl;
+    static int times = 0;
+    ++times;
+    cout << times << "\n";
+    // if(1 == times)
+        in.open(strT.c_str());
+    if(!in) {cout << "Error\n";}
 
-    // int offset = 9;
-    // fin.seekg(offset, ios::cur);
-    // int n = 12;
-    // char str1[3];
-    // // fin.getline(str1, n + 1);
-    // // cout << str1 << endl;
-    // // char no[100];
-    // string no, k1, k2;
-    // fin >> no;
-    // cout << no << "\n";
-    // fin >> k1;
-    // cout << k1 << "\n";
-
-    // // n = 2;  //! to skip ':' and ' '
-    // // fin.seekg(n + 1, ios::cur);
-    // // fin >> k1 >> k2;
-    // // cout << no << " " << k1 << " " << k2 << endl;
-    // cout << fin.eof() << "\n";
-    // fin.close();
     const size_t BUFFER_SIZE = 100;
-    char *line = new char[BUFFER_SIZE];
-    while(fin.getline(line, BUFFER_SIZE)) {
-        cout << line << "\n";
-        // string line, line1, line2, line3, line4;
-        // fin >> line >> line1 >> line2 >> line3 >> line4;
-        // cout << line << line1 << line2 << line3 << line4 << endl;
-    }
-    delete[] line;
+    char *pLine = new char[BUFFER_SIZE];
+    in.getline(pLine, BUFFER_SIZE);
 
+    cout << pLine << endl;
+    delete[] pLine;
+    // string str;
+    // in >> str;
+    // cout << str << endl;;
+    // in >> str;
+    // cout << str << endl;
+    in.close();
+    cout << "in.good():" << in.good() << endl;
 
-    string str = "Hello 10";
-    string a;
-    string b;
-    stringstream ss(str);
-    ss >> a >> b;
-    cout << a << b << "\n";
-    cout << string2num(b) << "\n";
     return 0;
-
-
-
-#if 0
-
-    char line[1024]={0};
-    std::string x = "";
-    std::string y = "";
-    std::string z = "";
-    while(fin.getline(line, sizeof(line))) {
-        cout << line << "\n";
-        // stringstream word(line);
-        // word >> x;
-        // word >> y;
-        // word >> z;
-        // std::cout << "x: " << x << std::endl;
-        // std::cout << "y: " << y << std::endl;
-        // std::cout << "z: " << z << std::endl;
-    }
-    fin.clear();
-    fin.close();
-    return 0;
-
-#endif
 }
+
+int main() {
+    // char c = 'p';
+    // const char *pC = &c;
+    // for(int i = 0; i < 10; ++i) {
+    //     saveFile(pC);
+    // }
+    // c = 'd';
+    // saveFile(pC);
+    saveTxtFile();
+
+    saveTxtFile();
+}
+
