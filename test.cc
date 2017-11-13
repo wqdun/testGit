@@ -77,6 +77,55 @@ int saveTxtFile() {
     return 0;
 }
 
+int openBinFile() {
+
+    FILE *pOutFile = fopen("test_bin_file", "ab");
+    cout << "pOutFile:" << pOutFile << endl;
+    char c = 'a';
+    char *pChar = &c;
+    fwrite(pChar, 1, 1, pOutFile);
+    // fclose(pOutFile);
+
+    // FILE *pOutFile2 = fopen("test_bin_file", "wb");
+    // cout << "pOutFile2:" << pOutFile2 << endl;
+    // fwrite(pChar, 1, 1, pOutFile);
+    // fclose(pOutFile2);
+}
+
+int openTxtFile() {
+    string strT("/home/dun/projects/testGit/test_bin_file");
+    ifstream in;
+    cout << "in.good():" << in.good() << endl;
+
+    in.open(strT.c_str());
+    cout << "in:" << in << "\n";
+    if(!in) {cout << "Error\n";}
+
+    const size_t BUFFER_SIZE = 100;
+    char *pLine = new char[BUFFER_SIZE];
+    in.getline(pLine, BUFFER_SIZE);
+    cout << pLine << endl;
+    delete[] pLine;
+
+    // in.close();
+    cout << "in.good():" << in.good() << endl;
+
+    ifstream in2;
+
+    in2.open(strT.c_str());
+    cout << "in2:" << in2 << "\n";
+    if(!in2) {cout << "Error\n";}
+
+    char *pLine2 = new char[BUFFER_SIZE];
+    in2.getline(pLine2, BUFFER_SIZE);
+    cout << "pLine2:" << pLine2 << endl;
+    delete[] pLine2;
+
+    return 0;
+}
+
+
+
 int main() {
     // char c = 'p';
     // const char *pC = &c;
@@ -85,8 +134,14 @@ int main() {
     // }
     // c = 'd';
     // saveFile(pC);
-    saveTxtFile();
+    // openTxtFile();
+    // openTxtFile();
 
-    saveTxtFile();
+    openBinFile();
+    openBinFile();
+
+    // saveTxtFile();
+
+    // saveTxtFile();
 }
 
