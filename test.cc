@@ -8,140 +8,105 @@
 #include <stdlib.h>
 #include <cerrno>
 #include <iostream>
+#include <sqlite3.h>
 using namespace std;
 
-string mRecordPath = "/home/dun/";
 
-int saveFile(const char *pTimeStamp) {
-    // about 600 packets/second
-    static const size_t MAX_PKT_CNT = 100;
-    static size_t pktCnt = 0;
-    static char fileName[50];
-    static FILE *pOutFile;
-    // get unix time stamp as file name
-    if(0 == pktCnt) {
-        time_t tt = time(NULL);
-        tm *t= localtime(&tt);
-        (void)sprintf(fileName, "%02d_%02d_%02d.lidar", t->tm_hour, t->tm_min, t->tm_sec);
+static int callback(void *data, int argc, char **argv, char **azColName){
+   int i;
+   fprintf(stderr, "%s: ", (const char*)data);
+   for(i=0; i<argc; i++){
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   }
+   printf("\n");
+   printf("Hello\n");
+   return 0;
+}
+// {
+//     static int column_names_printed = 0;
+// int i;
+// if (!column_names_printed) {
+// print_row(n_columns, column_names);
+// column_names_printed = 1;
+// }
+// print_row(n_columns, column_values);
+// return 0;
+// }
 
-        const string fileNameStr("fileName");
-        const string recordFile(mRecordPath + fileNameStr);
+// void print_row(int n_values, char** values)
+// {
+// int i;
+// for (i = 0; i < n_values; ++i) {
+// if (i > 0) {
+// printf("\t");
+// }
+// printf("%s", values[i]);
+// }
+// printf("\n");
+// }
 
-        if( !(pOutFile = fopen(recordFile.c_str(), "wb")) ) {
-            cout << "Create file:" << fileName << " failed, errno:" << errno;
+
+int main(int argc, char* argv[]) {
+    sqlite3 *db;
+    char *zErrMsg = 0;
+    int rc;
+    if( sqlite3_open("test.db", &db) ) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        exit(0);
+   }
+
+    fprintf(stderr, "Opened database successfully\n");
+
+
+    /* Create SQL statement */
+    string sql;
+    sql = "CREATE TABLE COMPANY("  \
+        "ID INT PRIMARY KEY     NOT NULL," \
+        "NAME           TEXT    NOT NULL," \
+        "AGE            INT     NOT NULL," \
+        "ADDRESS        CHAR(50)," \
+        "SALARY         REAL );";
+
+    const char *sql_cstr = sql.c_str();
+
+    /* Execute SQL statement */
+    // rc = sqlite3_exec(db, sql_cstr, callback, 0, &zErrMsg);
+    if( rc != SQLITE_OK ) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else {
+        fprintf(stdout, "Table created successfully\n");
+    }
+
+    const int id_beg = 10;
+    int id = id_beg;
+    while(id < id_beg + 5) {
+        sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "  \
+         "VALUES (" + std::to_string(++id) + ", 'Paul', 32, 'California', 20000.00 ); ";
+         rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+    if( rc != SQLITE_OK ) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else {
+        fprintf(stdout, "Records created successfully\n");
         }
-        cout << "Create file:" << fileName << " successfully.\n";
     }
 
-    static const size_t timeSize = sizeof(*pTimeStamp);
-    if(1 != fwrite(pTimeStamp, timeSize, 1, pOutFile)) {
-      cout << "Write time stamp error.";
+    const char* data = "Callback function called";
+    sql = "UPDATE COMPANY set SALARY = 25000.00 where ID=1;";\
+           //SELECT * from COMPANY";
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql.c_str(), callback, (void*)data, &zErrMsg);
+    if( rc != SQLITE_OK ) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+   }
+    else {
+        fprintf(stdout, "Operation done successfully\n");
     }
 
-    ++pktCnt;
-    cout << "pktCnt:" << pktCnt << "\n";
-    if(11 == pktCnt) {
-      pktCnt = 0;
-      fclose(pOutFile);
-    }
-    // fclose(pOutFile);
-    return 0;
+    sqlite3_close(db);
 }
-
-int saveTxtFile() {
-
-    string strT("/home/dun/fileName");
-    ifstream in;
-    cout << "in.good():" << in.good() << endl;
-    static int times = 0;
-    ++times;
-    cout << times << "\n";
-    // if(1 == times)
-        in.open(strT.c_str());
-    if(!in) {cout << "Error\n";}
-
-    const size_t BUFFER_SIZE = 100;
-    char *pLine = new char[BUFFER_SIZE];
-    in.getline(pLine, BUFFER_SIZE);
-
-    cout << pLine << endl;
-    delete[] pLine;
-    // string str;
-    // in >> str;
-    // cout << str << endl;;
-    // in >> str;
-    // cout << str << endl;
-    in.close();
-    cout << "in.good():" << in.good() << endl;
-
-    return 0;
-}
-
-int openBinFile() {
-
-    FILE *pOutFile = fopen("test_bin_file", "ab");
-    cout << "pOutFile:" << pOutFile << endl;
-    char c = 'a';
-    char *pChar = &c;
-    fwrite(pChar, 1, 1, pOutFile);
-    // fclose(pOutFile);
-
-    // FILE *pOutFile2 = fopen("test_bin_file", "wb");
-    // cout << "pOutFile2:" << pOutFile2 << endl;
-    // fwrite(pChar, 1, 1, pOutFile);
-    // fclose(pOutFile2);
-}
-
-int openTxtFile() {
-    string strT("/home/dun/projects/testGit/test_bin_file");
-    ifstream in;
-    cout << "in.good():" << in.good() << endl;
-
-    in.open(strT.c_str());
-    cout << "in:" << in << "\n";
-    if(!in) {cout << "Error\n";}
-
-    const size_t BUFFER_SIZE = 100;
-    char *pLine = new char[BUFFER_SIZE];
-    in.getline(pLine, BUFFER_SIZE);
-    cout << pLine << endl;
-    delete[] pLine;
-
-    // in.close();
-    cout << "in.good():" << in.good() << endl;
-
-    ifstream in2;
-
-    in2.open(strT.c_str());
-    cout << "in2:" << in2 << "\n";
-    if(!in2) {cout << "Error\n";}
-
-    char *pLine2 = new char[BUFFER_SIZE];
-    in2.getline(pLine2, BUFFER_SIZE);
-    cout << "pLine2:" << pLine2 << endl;
-    delete[] pLine2;
-
-    return 0;
-}
-
-
-
-int main() {
-    // char c = 'p';
-    // const char *pC = &c;
-    // for(int i = 0; i < 10; ++i) {
-    //     saveFile(pC);
-    // }
-    // c = 'd';
-    // saveFile(pC);
-    // openTxtFile();
-    // openTxtFile();
-
-    openBinFile();
-    openBinFile();
-
-    // saveTxtFile();
-
-    // saveTxtFile();
-}
-
